@@ -21,6 +21,10 @@ class OwRecorder {
       process.kill(process.pid, 'SIGTERM')
     }
     this.#db = database(this.#settings)
+
+    this.validateDbConnection = this.validateDbConnection.bind(this)
+    this.readOwParallell = this.readOwParallell.bind(this)
+    this.insertIntoDb = this.insertIntoDb.bind(this)
   }
 
   async validateDbConnection () {
@@ -80,6 +84,6 @@ class OwRecorder {
 
 const OwRec = new OwRecorder('./settings.ini')
 OwRec.validateDbConnection()
-  .then(() => OwRec.readOwParallell())
-  .then(() => OwRec.insertIntoDb())
+  .then(OwRec.readOwParallell)
+  .then(OwRec.insertIntoDb)
   .catch(problem => log(error(problem)))
