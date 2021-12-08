@@ -59,6 +59,26 @@ class OwRecorder {
     const owRead = util.promisify(owConnection.read.bind(owConnection))
 
     const readingsArray = await Promise.allSettled(sensorsArray.map(sensor => owRead(sensor[1])))
+
+    if (readingsArray.some(reading => reading.status === 'rejected')) {
+      const failureArray = []
+      const delay = (1000 * (this.#settings?.retry_read_after?.seconds)) || 4000
+      await new Promise(resolve => setTimeout(resolve, delay)) // pause, js style
+
+      // need to remember the index of the failed readings in the readingsArray in order to later replace them
+      for (let i = 0; i < readingsArray.length; i++) {
+        if (readingsArray[i].status === 'rejected') {
+          failureArray.push([i, owRead(sensorsArray[i][1])])
+        }
+      }
+      const retriedArray = await Promise.allSettled(failureArray.map(failure => failure[1]))
+
+      // replace the relevant prior readings in the readingsArray after the second attempt
+      for (let y = 0; y < failureArray.length; y++) {
+        readingsArray[failureArray[y][0]] = retriedArray[y]
+      }
+    }
+
     this.#formatSaveReadings(readingsArray, sensorsArray)
 
     const now = new Date()
