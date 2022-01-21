@@ -34,7 +34,7 @@ class OwRecorder {
   }
 
   #formatSaveReadings (readingsArray, sensorsArray) {
-    for (const [index, reading] of readingsArray.entries()) {
+    readingsArray.forEach((reading, index) => {
       if (reading.status === 'fulfilled') {
         let value = +(reading.value)
 
@@ -49,7 +49,7 @@ class OwRecorder {
         log(info(`At ${now.toISOString()} reading the following onewire sensor failed: ${sensorsArray[index][1]}`))
         log(info(reading.reason + '\n')) // not critical if not all..then we shall at least receive a timestamp indicating an attempt was made
       }
-    }
+    })
   }
 
   async readOwParallell () {
@@ -66,17 +66,18 @@ class OwRecorder {
       await new Promise(resolve => setTimeout(resolve, delay)) // pause, js style
 
       // need to remember the index of the failed readings in the readingsArray in order to later replace them
-      for (let i = 0; i < readingsArray.length; i++) {
-        if (readingsArray[i].status === 'rejected') {
-          failureArray.push([i, owRead(sensorsArray[i][1])])
+      readingsArray.forEach((reading, index) => {
+        if (readingsArray[index].status === 'rejected') {
+          failureArray.push([index, owRead(sensorsArray[index][1])])
         }
-      }
+      })
+
       const retriedArray = await Promise.allSettled(failureArray.map(failure => failure[1]))
 
       // replace the relevant prior readings in the readingsArray after the second attempt
-      for (let y = 0; y < failureArray.length; y++) {
-        readingsArray[failureArray[y][0]] = retriedArray[y]
-      }
+      retriedArray.forEach((reading, index) => {
+        readingsArray[failureArray[index][0]] = retriedArray[index]
+      })
     }
 
     this.#formatSaveReadings(readingsArray, sensorsArray)
