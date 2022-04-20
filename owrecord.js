@@ -103,7 +103,7 @@ class OwRecorder {
   }
 }
 
-const OwRec = new OwRecorder(new URL('./settings_dev.ini', import.meta.url))
+const OwRec = new OwRecorder(new URL('./settings.ini', import.meta.url))
 OwRec.validateDbConnection()
   .then(OwRec.readOwParallell)
   .then(OwRec.insertIntoDb)
