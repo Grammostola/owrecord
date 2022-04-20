@@ -4,8 +4,8 @@ import { parse } from 'ini'
 import { Client } from 'owfs'
 import chalk from 'chalk'
 import database from './database.js'
-const log = console.log
 
+const log = console.log
 const error = chalk.red
 const info = chalk.yellow
 
@@ -17,8 +17,8 @@ class OwRecorder {
     try {
       this.#settings = parse(readFileSync(settingsPath, 'utf-8'))
     } catch (problem) {
-      log(error('Failed to read settings.ini. Make sure it\'s in the same location as this script file.'))
-      process.kill(process.pid, 'SIGTERM')
+      log(error('Failed to read the settings file, by default \'settings.ini\' in the same location as owrecord.js'))
+      throw problem
     }
     this.#db = database(this.#settings)
 
@@ -103,7 +103,7 @@ class OwRecorder {
   }
 }
 
-const OwRec = new OwRecorder('./settings.ini')
+const OwRec = new OwRecorder(new URL('./settings_dev.ini', import.meta.url))
 OwRec.validateDbConnection()
   .then(OwRec.readOwParallell)
   .then(OwRec.insertIntoDb)
