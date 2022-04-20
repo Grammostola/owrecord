@@ -1,9 +1,9 @@
-const util = require('util')
-const fs = require('fs')
-const ini = require('ini')
-const Client = require('owfs').Client
-const chalk = require('chalk')
-const database = require('./database')
+import util from 'util'
+import { readFileSync } from 'fs'
+import { parse } from 'ini'
+import { Client } from 'owfs'
+import chalk from 'chalk'
+import database from './database.js'
 const log = console.log
 
 const error = chalk.red
@@ -15,7 +15,7 @@ class OwRecorder {
   #readingsObj = {}
   constructor (settingsPath) {
     try {
-      this.#settings = ini.parse(fs.readFileSync(settingsPath, 'utf-8'))
+      this.#settings = parse(readFileSync(settingsPath, 'utf-8'))
     } catch (problem) {
       log(error('Failed to read settings.ini. Make sure it\'s in the same location as this script file.'))
       process.kill(process.pid, 'SIGTERM')

@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "read defined ow sensors and write to postgresql table",
   "main": "owrecord.js",
+  "type": "module",
   "scripts": {
     "lint": "standard",
     "lint-fix": "standard --fix"
@@ -10,14 +11,14 @@
   "author": "Grammostola",
   "license": "MIT",
   "dependencies": {
-    "chalk": "^4.1.2",
-    "ini": "^2.0.0",
+    "chalk": "^5.0.1",
+    "ini": "^3.0.0",
     "owfs": "^0.4.0",
     "pg-promise": "^10.11.1"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.14.7",
-    "standard": "^16.0.3"
+    "@babel/eslint-parser": "^7.17.0",
+    "standard": "^17.0.0"
   },
   "babel": {},
   "standard": {

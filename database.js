@@ -1,5 +1,6 @@
-const pgp = require('pg-promise')({})
+import pgPromise from 'pg-promise'
 
+const pgp = pgPromise({})
 const database = function (settings) {
   const cd = {
     user: settings.postgresql.User,
@@ -14,4 +15,4 @@ const database = function (settings) {
   return db
 }
 
-module.exports = database
+export default database
