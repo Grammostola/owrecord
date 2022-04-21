@@ -56,7 +56,9 @@ Unit=owrecorder.service
 ## Code style
 
 Standard js. 
-(The babel and eslint in package.json is mostly because at the time of writing Standard doesn't seem to like '#' for private fields)
+
+Linting can be done via `npm run lint` and `npm run lint-fix`, for vscode there's a StandardJS extension for automatic formatting.  
+
 
 ## Contributing
 Do create an issue for a feature request, bug report, comment or preceding a PR.
