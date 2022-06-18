@@ -67,7 +67,7 @@ class OwRecorder {
 
       // need to remember the index of the failed readings in the readingsArray in order to later replace them
       readingsArray.forEach((reading, index) => {
-        if (readingsArray[index].status === 'rejected') {
+        if (reading.status === 'rejected') {
           failureArray.push([index, owRead(sensorsArray[index][1])])
         }
       })
@@ -76,7 +76,7 @@ class OwRecorder {
 
       // replace the relevant prior readings in the readingsArray after the second attempt
       retriedArray.forEach((reading, index) => {
-        readingsArray[failureArray[index][0]] = retriedArray[index]
+        readingsArray[failureArray[index][0]] = reading
       })
     }
 
