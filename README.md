@@ -29,7 +29,7 @@ After cloning this repo and installing the dependencies edit **settings.ini** wi
 
 (The settings.ini file can be called differently and located elsewhere, if so then edit owrecord.js near the top:
 ```javascript
-recordOw('/mnt/pulchra/owsavecript_settings.ini')
+recordOw('/mnt/pulchra/owsavescript_settings.ini')
 ```
 for instance. )
 
