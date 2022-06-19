@@ -17,7 +17,7 @@ recordOw()
 async function recordOw (iniPath = './settings.ini') {
   const settingsPath = new URL(iniPath, import.meta.url)
   const { settings, db } = await initialize(settingsPath)
-  const readingsObj = await readOwParallell(settings)
+  const readingsObj = await readOwSerially(settings)
   await insertIntoDb(settings, readingsObj, db)
 }
 
@@ -43,64 +43,75 @@ async function validateDbConnection (db) {
   return check.client.serverVersion
 }
 
-function formatSaveReadings (readingsArray, sensorsArray) {
-  const readingsObj = {}
-  readingsArray.forEach((reading, index) => {
-    if (reading.status === 'fulfilled') {
-      let value = +(reading.value)
+async function readOwSerially (settings) {
+  const owObject = {
+    server: settings.owserver,
+    sensors: settings.owsensors
+  }
 
-      if (sensorsArray[index][0].endsWith('_humidity')) {
-        value = Math.round(value)
-      } else { // presumed _temperature
-        value = +value.toFixed(2)
-      }
-      readingsObj[sensorsArray[index][0]] = value
-    } else if (reading.status === 'rejected') {
-      const now = new Date()
-      log(info(`At ${now.toISOString()} reading the following onewire sensor failed: ${sensorsArray[index][1]}`))
-      log(info(reading.reason + '\n')) // not critical if not all..then we shall at least receive a timestamp indicating an attempt was made
-    }
-  })
-  return readingsObj
-}
-
-async function readOwParallell (settings) {
-  const owserverObj = settings.owserver
-  const sensorsArray = Object.entries(settings.owsensors)
-  const owConnection = new Client(owserverObj.Host, +owserverObj.Port)
+  const owConnection = new Client(owObject.server.Host, +owObject.server.Port)
   const owRead = util.promisify(owConnection.read.bind(owConnection))
 
-  const readingsArray = await Promise.allSettled(sensorsArray.map(sensor => owRead(sensor[1])))
+  let readErrors = false
 
-  if (readingsArray.some(reading => reading.status === 'rejected')) {
-    const failureArray = []
+  for (const sensor in owObject.sensors) {
+    let value
+    try {
+      value = await owRead(owObject.sensors[sensor])
+    } catch (error) {
+      value = 'read error'
+      readErrors = true
+    }
+
+    owObject.sensors[sensor] = {
+      type: sensor.slice(sensor.lastIndexOf('_') + 1),
+      address: owObject.sensors[sensor],
+      reading: value
+    }
+  }
+
+  if (readErrors) {
     const delay = (1000 * (settings?.retry_read_after?.seconds)) || 4000
     await new Promise(resolve => setTimeout(resolve, delay)) // pause, js style
 
-    // need to remember the index of the failed readings in the readingsArray in order to later replace them
-    readingsArray.forEach((reading, index) => {
-      if (reading.status === 'rejected') {
-        failureArray.push([index, owRead(sensorsArray[index][1])])
+    for (const sensor in owObject.sensors) {
+      let value
+      const curSensor = owObject.sensors[sensor]
+      if (curSensor.reading === 'read error') {
+        try {
+          value = await owRead(owObject.sensors[sensor].address)
+          curSensor.reading = value
+        } catch (error) {
+          const now = new Date()
+          log(info(`At ${now.toLocaleString()} reading the following onewire sensor failed: ${sensor}`))
+        }
       }
-    })
-
-    const retriedArray = await Promise.allSettled(failureArray.map(failure => failure[1]))
-
-    // replace the relevant prior readings in the readingsArray after the second attempt
-    retriedArray.forEach((reading, index) => {
-      readingsArray[failureArray[index][0]] = reading
-    })
+    }
   }
+  return _createInsertObject(owObject)
+}
 
-  const readingsObj = formatSaveReadings(readingsArray, sensorsArray)
-
-  const now = new Date()
-  if (Object.keys(readingsObj).length === 0) {
-    log(info(`At ${now.toISOString()} all sensor readings failed.\n`))
+function _createInsertObject (owObject) {
+  const insertObject = {}
+  for (const sensor in owObject.sensors) {
+    const curSensor = owObject.sensors[sensor]
+    if (!(curSensor.reading === 'read error')) {
+      const value = +owObject.sensors[sensor].reading
+      if (curSensor.type === 'humidity') {
+        insertObject[sensor] = Math.round(value)
+      } else if (curSensor.type === 'temperature') {
+        insertObject[sensor] = (+value.toFixed(2))
+      } else {
+        insertObject[sensor] = value
+      }
+    }
   }
-
-  readingsObj.timestamp = now
-  return readingsObj
+  if (Object.keys(insertObject).length === 0) {
+    throw Error('All sensor readings failed.')
+  }
+  const timestamp = new Date()
+  insertObject.timestamp = timestamp.toISOString()
+  return insertObject
 }
 
 async function insertIntoDb (settings, readingsObj, db) {
