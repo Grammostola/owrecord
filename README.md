@@ -27,22 +27,18 @@ The primary key column can be anything suitable (which doesn't ideally include t
 ### Installing
 After cloning this repo and installing the dependencies edit **settings.ini** with your database and sensors information. The names need to match, so a sensor called "west_rel_humidity" in settings.ini needs a "west_rel_humidity" numeric(3,0) column in the target table.
 
+(The settings.ini file can be called differently and located elsewhere, if so then edit owrecord.js near the top:
+```javascript
+recordOw('/mnt/pulchra/owsavecript_settings.ini')
+```
+for instance. )
+
 
 Therafter the script can be run:
 ```
 node owrecord.js
 ```
 If there's no visible output then it has probably run successfully, check the database table.
-
-It's also possible to see what was read from the onewire sensors and is to be inserted into the database table(without doing so) by changing owrecord.js like so:
-
-```javascript
-  .then(OwRec.readOwParallell)
-  .then(result => log(result))
-  // .then(OwRec.insertIntoDb)
-  .catch(problem => log(error(problem)))
-```
-
 
 
 ## Deployment
