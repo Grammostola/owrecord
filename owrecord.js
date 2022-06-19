@@ -18,7 +18,9 @@ async function recordOw (iniPath = './settings.ini') {
   const settingsPath = new URL(iniPath, import.meta.url)
   const { settings, db } = await initialize(settingsPath)
   const readingsObj = await readOwSerially(settings)
-  await insertIntoDb(settings, readingsObj, db)
+  if (settings.save_in_table.save === 'yes') {
+    await insertIntoDb(settings, readingsObj, db)
+  } else log(readingsObj)
 }
 
 async function initialize (settingsPath) {

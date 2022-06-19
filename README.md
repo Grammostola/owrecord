@@ -40,6 +40,12 @@ node owrecord.js
 ```
 If there's no visible output then it has probably run successfully, check the database table.
 
+There's a configuration option in settings.ini for only reading the sensors and showing what would be saved in a table without attempting to save anything in a table. Change this to something other than yes (and do advise me if you know how make ini pick up a boolean value from an .ini :) )
+```ini
+[save_in_table]
+save = yes
+```
+
 
 ## Deployment
 The script makes a certain amount of sense on a schedule. If systemd is employed the timer can look like so:
