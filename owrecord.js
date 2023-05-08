@@ -16,14 +16,17 @@ recordOw()
  */
 async function recordOw (iniPath = './settings.ini') {
   const settingsPath = new URL(iniPath, import.meta.url)
-  const { settings, db } = await initialize(settingsPath)
+  const settings = await readSettings(settingsPath)
   const readingsObj = await readOwSerially(settings)
   if (settings?.strategy?.readonly) {
     log(readingsObj)
-  } else await insertIntoDb(settings, readingsObj, db)
+  } else {
+    const db = await initDbConn(settings)
+    insertIntoDb(settings, readingsObj, db)
+  }
 }
 
-async function initialize (settingsPath) {
+async function readSettings (settingsPath) {
   let settings
   try {
     settings = parse(readFileSync(settingsPath, 'utf-8'))
@@ -31,12 +34,13 @@ async function initialize (settingsPath) {
     log(error('Failed to read the settings file, by default \'settings.ini\' in the same location as owrecord.js'))
     throw problem
   }
+  return settings
+}
+
+async function initDbConn (settings) {
   const db = database(settings)
   await validateDbConnection(db)
-  return {
-    settings,
-    db
-  }
+  return db
 }
 
 async function validateDbConnection (db) {
