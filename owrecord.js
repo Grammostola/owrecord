@@ -4,17 +4,27 @@ import { parse } from 'ini'
 import { Client } from 'owfs'
 import chalk from 'chalk'
 import database from './database.js'
+import yargs from 'yargs'
+import { hideBin } from 'yargs/helpers'
+
+const argv = yargs(hideBin(process.argv))
+  .option('config', {
+    alias: 'c',
+    describe: 'Path of the intended config.ini',
+    type: 'string',
+    default: './settings_dev.ini'
+  }).help().argv
 
 const log = console.log
 const error = chalk.red
 const info = chalk.yellow
 
-recordOw()
+recordOw(argv.c)
 /**
  * Read specificed onewire temperature and humidity sensors and save in a table.
  * @param {string} iniPath - the path of the ini file with settings
  */
-async function recordOw (iniPath = './settings.ini') {
+async function recordOw (iniPath) {
   const settingsPath = new URL(iniPath, import.meta.url)
   const settings = await readSettings(settingsPath)
   const readingsObj = await readOwSerially(settings)
