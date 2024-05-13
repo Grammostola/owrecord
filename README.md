@@ -27,16 +27,10 @@ The primary key column can be anything suitable (which doesn't ideally include t
 ### Installing
 After cloning this repo and installing the dependencies edit **settings.ini** with your database and sensors information. The names need to match, so a sensor called "west_rel_humidity" in settings.ini needs a "west_rel_humidity" numeric(3,0) column in the target table.
 
-(The settings.ini file can be called differently and located elsewhere, if so then edit owrecord.js near the top:
-```javascript
-recordOw('/mnt/pulchra/owsavescript_settings.ini')
-```
-for instance. )
+The settings.ini file by default is assumed to reside at the base project level but a config.ini file with a different name or location can be supplied via a command line option:
 
-
-Therafter the script can be run:
 ```
-node owrecord.js
+node owrecord.js --c "../custom_schedules/nightly.ini"
 ```
 If there's no visible output then it has probably run successfully, check the database table.
 
