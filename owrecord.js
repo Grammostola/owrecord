@@ -12,7 +12,7 @@ const argv = yargs(hideBin(process.argv))
     alias: 'c',
     describe: 'Path of the intended config.ini',
     type: 'string',
-    default: './settings_dev.ini'
+    default: './settings.ini'
   }).help().argv
 
 const log = console.log
