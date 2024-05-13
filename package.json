@@ -11,12 +11,13 @@
   "author": "Grammostola",
   "license": "MIT",
   "dependencies": {
-    "chalk": "^5.0.1",
+    "chalk": "^5.3.0",
     "ini": "^3.0.0",
     "owfs": "^0.4.0",
-    "pg-promise": "^10.11.1"
+    "pg-promise": "^10.11.1",
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "standard": "^17.0.0"
+    "standard": "*"
   }
 }
