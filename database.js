@@ -3,16 +3,19 @@ import pgPromise from 'pg-promise'
 const pgp = pgPromise({})
 const database = function (settings) {
   const cd = {
-    user: settings.postgresql.User,
-    host: settings.postgresql.Host,
-    pass: settings.postgresql.Pass,
-    database: settings.postgresql.DB,
-    port: settings.postgresql.Port
+    user: settings.user,
+    host: settings.host,
+    pass: settings.pass,
+    database: settings.db,
+    port: settings.port
   }
 
   const cn = `postgres://${cd.user}:${cd.pass}@${cd.host}:${cd.port}/${cd.database}`
   const db = pgp(cn)
-  return db
+  return {
+    db,
+    pgp
+  }
 }
 
 export default database

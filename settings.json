@@ -1,0 +1,45 @@
+{
+  "owserver": {
+    "host": "192.168.1.12",
+    "port": 4304
+  },
+  "database": {
+    "user": "onewire",
+    "pass": "telephone_cable_rj11_or12!",
+    "table": "oca_temp_hum_hist",
+    "db": "developments",
+    "port": 5432,
+    "host": "192.168.1.13"
+  },
+  "sensorsColumns":  [
+    {
+      "id": "Balcony temp",
+      "owAddress": "/26.D99735020000/temperature",
+      "sensorType": "temp",
+      "dbColumn": "balcony_temp"
+    },
+    {
+      "id": "Balcony humidity",
+      "owAddress": "/26.D99735020000/humidity",
+      "sensorType": "hum",
+      "dbColumn": "balcony_rel_hum"
+    },
+     {
+      "id": "Greenhouse humidity",
+      "owAddress": "/26.43261D030000/temperature",
+      "sensorType": "temp",
+      "dbColumn": "greenhouse_rel_hum"
+    },
+    {
+      "id": "Greenhouse temp",
+      "owAddress": "/28.20B06C090000/temperature",
+      "sensorType": "temp",
+      "dbColumn": "greenhouse_temp"
+    }
+  ],
+
+  "miscSettings": {
+    "readOnly": true,
+    "sensorReadRetryDelay": 2
+  }
+}
